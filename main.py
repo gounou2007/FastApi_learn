@@ -6,6 +6,9 @@ app = FastAPI()
 class Item(BaseModel):
     text: str= None
     is_done: bool = False
+
+
+     
 items = []
 @app.get("/")
 def root():
@@ -16,6 +19,7 @@ def root():
 def create_item(item: Item):
     items.append(item)
     return items
+
 
 @app.get("/items")
 def list_items(limit: int = 10):
