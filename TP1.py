@@ -9,6 +9,7 @@ add_pagination(monapp)
 
 class Tache(BaseModel):
     idtache:int
+    title:str =Field(default="Nouvelle tache")
     description:str ="Nouvelle tache"
     datecreation : date =Field(default_factory=date.today)
     status: bool = False
@@ -42,23 +43,45 @@ def get_item(tache_id: int)-> Tache:
         else:
             taches = listtaches[tache_id-1]
             return taches
-"""
-@app.post("/items")
-def create_item(item: Item):
-    items.append(item)
-    return items
+
+@monapp.get("/done")
+def get_faites()-> list[Tache]:
+    return [tache for tache in listtaches if tache.status]
+
+@monapp.get("/undone")
+def get_non_faites()-> list[Tache]:
+    return [tache for tache in listtaches if not tache.status]
 
 
-@app.get("/items")
-def list_items(limit: int = 10):
-    return items[0:limit]
+@monapp.get("/done/{date}")
+def get_faites(date: date)-> list[Tache]:
+    return [tache for tache in listtaches if tache.datecreation == date and tache.status]
 
 
-@app.get("/items/{item_id}")
-def get_item(item_id: int)-> Item:
-        if item_id >= len(items) or item_id < 0:
-          raise HTTPException(status_code=404, detail=f"Item  {item_id} not found")
-        else:
-            item = items[item_id]
-            return item
-"""
+@monapp.get("/undone/{date}")
+def get_non_faites(date: date)-> list[Tache]:
+    return [tache for tache in listtaches if tache.datecreation == date and not tache.status]
+
+@monapp.delete("/taches/{tache_id}")
+def delete_tache(tache_id: int):
+    if tache_id >= len(listtaches) or tache_id < 0:
+        raise HTTPException(status_code=404, detail=f"tache  {tache_id} not found")
+    else:
+        listtaches.pop(tache_id-1)
+        return {"message": f"tache {tache_id} deleted"}
+
+@monapp.put("/taches/{tache_id.title,description,status}")
+def modify_tache(tache_id: int, tache: Tache):
+    if tache_id >= len(listtaches) or tache_id < 0:
+        raise HTTPException(status_code=404, detail=f"tache  {tache_id} not found")
+    else:
+        listtaches[tache_id-1] = tache
+    
+@monapp.delete("/taches/{tache_title}")
+def delete_tache(tache_title: str):
+    for i, tache in enumerate(listtaches):
+        if tache.title == tache_title:
+            listtaches.pop(i)
+            return {"message": f"tache {tache_title} deleted"}
+    raise HTTPException(status_code=404, detail=f"tache  {tache_title} not found")
+        
