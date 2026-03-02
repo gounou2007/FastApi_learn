@@ -1,7 +1,6 @@
 from fastapi import FastAPI,HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from datetime import date
-from typing import Optional
 from fastapi_pagination import Page, add_pagination, paginate
 from fastapi_pagination.links import Page
 
@@ -9,13 +8,12 @@ monapp = FastAPI()
 add_pagination(monapp)
 
 class Tache(BaseModel):
-    idtache: Optional[int] = None
-    description: Optional[str] = None
-    date: Optional[str] = None
+    idtache:int
+    description:str ="Nouvelle tache"
+    datecreation : date =Field(default_factory=date.today)
     status: bool = False
 
 
-     
 listtaches = []
 @monapp.get("/")
 def root():
@@ -24,6 +22,10 @@ def root():
 
 @monapp.post("/taches")
 def create_tache(tache: Tache):
+    if len(listtaches) == 0:
+        tache.idtache = 1
+    else:
+        tache.idtache = listtaches[-1].idtache + 1
     listtaches.append(tache)
     return listtaches
 
@@ -33,7 +35,13 @@ def get_taches():
 def list_taches(limit: int = 10):
     return listtaches[0:limit]
 
-
+@monapp.get("/taches/{tache_id}")
+def get_item(tache_id: int)-> Tache:
+        if tache_id >= len(listtaches) or tache_id < 0:
+          raise HTTPException(status_code=404, detail=f"tache  {tache_id} not found")
+        else:
+            taches = listtaches[tache_id-1]
+            return taches
 """
 @app.post("/items")
 def create_item(item: Item):
