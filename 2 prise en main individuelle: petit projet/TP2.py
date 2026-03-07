@@ -62,6 +62,7 @@ def get_faites(date: date)-> list[Tache]:
 def get_non_faites(date: date)-> list[Tache]:
     return [tache for tache in listtaches if tache.datecreation == date and not tache.status]
 
+
 @monapp.delete("/taches/{tache_id}")
 def delete_tache(tache_id: int):
     if tache_id >= len(listtaches) or tache_id < 0:
@@ -70,13 +71,16 @@ def delete_tache(tache_id: int):
         listtaches.pop(tache_id-1)
         return {"message": f"tache {tache_id} deleted"}
 
+
 @monapp.put("/taches/{tache_id.title,description,status}")
 def modify_tache(tache_id: int, tache: Tache):
     if tache_id >= len(listtaches) or tache_id < 0:
         raise HTTPException(status_code=404, detail=f"tache  {tache_id} not found")
     else:
         listtaches[tache_id-1] = tache
-    
+
+
+
 @monapp.delete("/taches/{tache_title}")
 def delete_tache(tache_title: str):
     for i, tache in enumerate(listtaches):
